@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 # Load dataset
-df = pd.read_csv("Data/processed/merged_restaurant_reviews.csv", encoding="utf-8")
+df = pd.read_csv("Data/processed/merged_restaurant_reviews.csv")
 
 # Basic information
 print("\n===== DATASET OVERVIEW =====")
@@ -32,8 +32,8 @@ print(df["Business_Name"].value_counts())
 
 print("\nRating Distribution:")
 print(df["Rating"].value_counts().sort_index())
-# Rating Distribution Bar Chart
 
+# Rating Distribution Bar Chart
 rating_counts = df["Rating"].value_counts().sort_index()
 
 plt.figure(figsize=(6,4))
@@ -43,7 +43,7 @@ plt.title("Rating Distribution")
 plt.xlabel("Ratings")
 plt.ylabel("Number of Reviews")
 
-plt.savefig("outputs/rating_distribution.png")
+plt.savefig("visualization/rating_distribution.png")
 plt.show()
 # Reviews per Business
 
@@ -58,7 +58,7 @@ plt.ylabel("Number of Reviews")
 plt.xticks(rotation=45)
 
 plt.tight_layout()
-plt.savefig("outputs/reviews_per_business.png")
+plt.savefig("visualization/reviews_per_business.png")
 plt.show()
 # Review Length Distribution
 
@@ -71,10 +71,10 @@ plt.title("Distribution of Review Length")
 plt.xlabel("Number of Characters")
 plt.ylabel("Number of Reviews")
 
-plt.savefig("outputs/review_length_distribution.png")
+plt.savefig("visualization/review_length_distribution.png")
 plt.show()
-# Word Cloud
 
+# Word Cloud
 text = " ".join(df["Review text"].astype(str))
 
 wordcloud = WordCloud(
@@ -88,5 +88,5 @@ plt.imshow(wordcloud, interpolation="bilinear")
 plt.axis("off")
 plt.title("Most Frequent Words in Reviews")
 
-plt.savefig("outputs/wordcloud.png")
+plt.savefig("visualization/wordcloud.png")
 plt.show()
