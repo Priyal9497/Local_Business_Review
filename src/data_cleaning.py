@@ -1,7 +1,10 @@
 import pandas as pd
 
 # Load dataset
-df = pd.read_csv("merged_restaurant_reviews.csv", encoding="utf-8")
+df = pd.read_csv(
+    "Data/processed/merged_restaurant_reviews.csv",
+    encoding="utf-8"
+)
 
 print("Shape of Dataset:", df.shape)
 
@@ -48,6 +51,6 @@ df["Review text"] = df["Review text"].str.replace(r"\s+", " ", regex=True).str.s
 
 print("\nSpecial characters removed successfully!")
 # Save cleaned dataset
-df.to_csv("cleaned_restaurant_reviews.csv", index=False, encoding="utf-8")
+df.to_csv("Data/processed/cleaned_restaurant_reviews.csv", index=False, encoding="utf-8")
 
 print("\nCleaned dataset saved successfully!")

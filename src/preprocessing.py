@@ -8,7 +8,10 @@ nltk.download("wordnet")
 nltk.download("omw-1.4")
 
 # Load cleaned dataset
-df = pd.read_csv("cleaned_restaurant_reviews.csv", encoding="utf-8")
+df = pd.read_csv(
+    "Data/processed/cleaned_restaurant_reviews.csv",
+    encoding="utf-8"
+)
 
 print("Shape:", df.shape)
 
@@ -31,15 +34,7 @@ df["Tokens"] = df["Tokens"].apply(
 
 print("\nAfter Removing Stopwords:")
 print(df["Tokens"].head())
-# Stemming
-stemmer = PorterStemmer()
 
-df["Tokens"] = df["Tokens"].apply(
-    lambda words: [stemmer.stem(word) for word in words]
-)
-
-print("\nAfter Stemming:")
-print(df["Tokens"].head())
 # Lemmatization
 lemmatizer = WordNetLemmatizer()
 
@@ -49,3 +44,11 @@ df["Tokens"] = df["Tokens"].apply(
 
 print("\nAfter Lemmatization:")
 print(df["Tokens"].head())
+# Save final preprocessed dataset
+df.to_csv(
+    "Data/processed/preprocessed_restaurant_reviews.csv",
+    index=False,
+    encoding="utf-8"
+)
+
+print("\nPreprocessed dataset saved successfully!")

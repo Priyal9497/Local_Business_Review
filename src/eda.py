@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 
 # Load dataset
-df = pd.read_csv("merged_restaurant_reviews.csv", encoding="utf-8")
+df = pd.read_csv("Data/processed/merged_restaurant_reviews.csv", encoding="utf-8")
 
 # Basic information
 print("\n===== DATASET OVERVIEW =====")
@@ -43,7 +43,7 @@ plt.title("Rating Distribution")
 plt.xlabel("Ratings")
 plt.ylabel("Number of Reviews")
 
-plt.savefig("rating_distribution.png")
+plt.savefig("outputs/rating_distribution.png")
 plt.show()
 # Reviews per Business
 
@@ -58,7 +58,7 @@ plt.ylabel("Number of Reviews")
 plt.xticks(rotation=45)
 
 plt.tight_layout()
-plt.savefig("reviews_per_business.png")
+plt.savefig("outputs/reviews_per_business.png")
 plt.show()
 # Review Length Distribution
 
@@ -71,7 +71,7 @@ plt.title("Distribution of Review Length")
 plt.xlabel("Number of Characters")
 plt.ylabel("Number of Reviews")
 
-plt.savefig("review_length_distribution.png")
+plt.savefig("outputs/review_length_distribution.png")
 plt.show()
 # Word Cloud
 
@@ -88,5 +88,5 @@ plt.imshow(wordcloud, interpolation="bilinear")
 plt.axis("off")
 plt.title("Most Frequent Words in Reviews")
 
-plt.savefig("wordcloud.png")
+plt.savefig("outputs/wordcloud.png")
 plt.show()
