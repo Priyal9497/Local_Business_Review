@@ -48,12 +48,35 @@ def load_data():
 
 @st.cache_resource
 def load_models():
-    tfidf = joblib.load(os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl"))
-    clf = joblib.load(os.path.join(MODELS_DIR, "sentiment_classifier.pkl"))
-    reg = joblib.load(os.path.join(MODELS_DIR, "rating_regressor.pkl"))
-    lda_model = LdaModel.load(os.path.join(MODELS_DIR, "lda_model.gensim"))
-    dictionary = Dictionary.load(os.path.join(MODELS_DIR, "lda_dictionary.gensim"))
-    return tfidf, clf, reg, lda_model, dictionary
+        # TF-IDF used by the sentiment classifier
+    tfidf = joblib.load(
+        os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl")
+    )
+
+    # Sentiment classifier
+    clf = joblib.load(
+        os.path.join(MODELS_DIR, "sentiment_classifier.pkl")
+    )
+
+    # Separate TF-IDF used by the rating regressor
+    rating_tfidf = joblib.load(
+        os.path.join(MODELS_DIR, "rating_tfidf_vectorizer.pkl")
+    )
+
+    # Rating regression model
+    reg = joblib.load(
+        os.path.join(MODELS_DIR, "rating_regressor.pkl")
+    )
+
+    lda_model = LdaModel.load(
+        os.path.join(MODELS_DIR, "lda_model.gensim")
+    )
+
+    dictionary = Dictionary.load(
+        os.path.join(MODELS_DIR, "lda_dictionary.gensim")
+    )
+
+    return tfidf, clf, rating_tfidf, reg, lda_model, dictionary
 
 df = load_data()
 
@@ -68,7 +91,7 @@ def rating_to_sentiment(r):
     return "negative"
 
 df["sentiment_label"] = df["Rating"].apply(rating_to_sentiment)
-tfidf, clf, reg, lda_model, dictionary = load_models()
+tfidf, clf, rating_tfidf, reg, lda_model, dictionary = load_models()
 
 # ============================================================
 # CACHED: compute dominant topic for every review in the dataset
@@ -150,14 +173,20 @@ if st.button("Analyze") and user_text.strip():
     if len(user_text.split()) < 6:
         st.warning("Very short reviews give unreliable predictions — try a full sentence.")
 
-    # ---- Sentiment + rating ----
+        # ---- Sentiment + rating ----
     cleaned = clean_review_text(user_text)
+
+    # Sentiment uses the sentiment TF-IDF
     vec = tfidf.transform([cleaned])
     oov = oov_ratio(cleaned, tfidf)
 
+    # Rating uses its own TF-IDF
+    rating_vec = rating_tfidf.transform([cleaned])
+
     pred_sentiment = clf.predict(vec)[0]
-    raw_rating = float(reg.predict(vec)[0])
-    pred_rating = min(5.0, max(1.0, round(raw_rating, 1)))  # clip to valid 1-5 range
+
+    raw_rating = float(reg.predict(rating_vec)[0])
+    pred_rating = min(5.0, max(1.0, round(raw_rating, 1)))
 
     if hasattr(clf, "predict_proba"):
         proba = clf.predict_proba(vec)[0]
@@ -166,26 +195,28 @@ if st.button("Analyze") and user_text.strip():
     else:
         proba_map = None
         top_conf = None
+        
+            
 
-    # ---- Topic ----
-    topic_id, topic_prob = get_dominant_topic(user_text, lda_model, dictionary)
-    topic_label = TOPIC_LABELS.get(topic_id, "Unknown") if topic_id is not None else "Not enough text to infer a topic"
+        # ---- Topic ----
+        topic_id, topic_prob = get_dominant_topic(user_text, lda_model, dictionary)
+        topic_label = TOPIC_LABELS.get(topic_id, "Unknown") if topic_id is not None else "Not enough text to infer a topic"
 
-    col_a, col_b, col_c = st.columns(3)
-    col_a.metric("Predicted sentiment", pred_sentiment)
-    col_b.metric("Predicted rating", pred_rating)
-    col_c.metric("Predicted topic", topic_label)
+        col_a, col_b, col_c = st.columns(3)
+        col_a.metric("Predicted sentiment", pred_sentiment)
+        col_b.metric("Predicted rating", pred_rating)
+        col_c.metric("Predicted topic", topic_label)
 
-    if proba_map is not None:
-        st.caption("Sentiment confidence: " + ", ".join(f"{k}: {v:.0%}" for k, v in proba_map.items()))
-    if topic_prob is not None:
-        st.caption(f"Topic confidence: {topic_prob:.0%}")
+        if proba_map is not None:
+            st.caption("Sentiment confidence: " + ", ".join(f"{k}: {v:.0%}" for k, v in proba_map.items()))
+        if topic_prob is not None:
+            st.caption(f"Topic confidence: {topic_prob:.0%}")
 
-    if oov > 0.5:
-        st.warning(
-            f"⚠️ {oov:.0%} of the words/phrases in this review were not seen "
-            "during training, so the sentiment/rating prediction is based on "
-            "very little real signal — treat it as unreliable."
-        )
-    if top_conf is not None and top_conf < 0.6:
-        st.warning("⚠️ The sentiment model isn't confident — the classes were close, close to a coin-flip.")
+        if oov > 0.5:
+            st.warning(
+                f"⚠️ {oov:.0%} of the words/phrases in this review were not seen "
+                "during training, so the sentiment/rating prediction is based on "
+                "very little real signal — treat it as unreliable."
+            )
+        if top_conf is not None and top_conf < 0.6:
+            st.warning("⚠️ The sentiment model isn't confident — the classes were close, close to a coin-flip.")
