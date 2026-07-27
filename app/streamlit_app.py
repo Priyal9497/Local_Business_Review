@@ -198,25 +198,25 @@ if st.button("Analyze") and user_text.strip():
         
             
 
-        # ---- Topic ----
-        topic_id, topic_prob = get_dominant_topic(user_text, lda_model, dictionary)
-        topic_label = TOPIC_LABELS.get(topic_id, "Unknown") if topic_id is not None else "Not enough text to infer a topic"
+    # ---- Topic ----
+    topic_id, topic_prob = get_dominant_topic(user_text, lda_model, dictionary)
+    topic_label = TOPIC_LABELS.get(topic_id, "Unknown") if topic_id is not None else "Not enough text to infer a topic"
 
-        col_a, col_b, col_c = st.columns(3)
-        col_a.metric("Predicted sentiment", pred_sentiment)
-        col_b.metric("Predicted rating", pred_rating)
-        col_c.metric("Predicted topic", topic_label)
+    col_a, col_b, col_c = st.columns(3)
+    col_a.metric("Predicted sentiment", pred_sentiment)
+    col_b.metric("Predicted rating", pred_rating)
+    col_c.metric("Predicted topic", topic_label)
 
-        if proba_map is not None:
-            st.caption("Sentiment confidence: " + ", ".join(f"{k}: {v:.0%}" for k, v in proba_map.items()))
-        if topic_prob is not None:
-            st.caption(f"Topic confidence: {topic_prob:.0%}")
+    if proba_map is not None:
+        st.caption("Sentiment confidence: " + ", ".join(f"{k}: {v:.0%}" for k, v in proba_map.items()))
+    if topic_prob is not None:
+        st.caption(f"Topic confidence: {topic_prob:.0%}")
 
-        if oov > 0.5:
-            st.warning(
-                f"⚠️ {oov:.0%} of the words/phrases in this review were not seen "
-                "during training, so the sentiment/rating prediction is based on "
-                "very little real signal — treat it as unreliable."
-            )
-        if top_conf is not None and top_conf < 0.6:
-            st.warning("⚠️ The sentiment model isn't confident — the classes were close, close to a coin-flip.")
+    if oov > 0.5:
+        st.warning(
+            f"⚠️ {oov:.0%} of the words/phrases in this review were not seen "
+            "during training, so the sentiment/rating prediction is based on "
+            "very little real signal — treat it as unreliable."
+        )
+    if top_conf is not None and top_conf < 0.6:
+        st.warning("⚠️ The sentiment model isn't confident — the classes were close, close to a coin-flip.")
