@@ -1,0 +1,36 @@
+# ============================================================
+# verify.py — regression test on the six failing screenshots
+# Run from project root:  python verify.py
+# ============================================================
+import os
+import sys
+import joblib
+import numpy as np
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "app"))
+from text_utils import (MODELS_DIR, clean_review_text, probs_to_outputs,
+                        tag_aspects, LexiconFeatures)  # noqa: F401
+
+b = joblib.load(os.path.join(MODELS_DIR, "review_model.pkl"))
+pipe, classes = b["pipeline"], np.asarray(b["classes"])
+
+TESTS = [
+    ("the food was amazing and the ambience is too good", "positive"),
+    ("the food was amazing and the ambience is too good but the behaviour of staff was very rude", None),
+    ("the food was not tasty and the ambience is also not good but the behaviour of staff was very rude", "negative"),
+    ("the food was not tasty", "negative"),
+    ("the food was not tasty and the service was also slow", "negative"),
+    ("the food was not amazing the ambience was also not good and the staff behaviour is soo bad", "negative"),
+]
+
+passed = 0
+for text, expect in TESTS:
+    r, s, _ = probs_to_outputs(pipe.predict_proba([clean_review_text(text)])[0], classes)
+    a, _, _ = tag_aspects(text)
+    ok = (expect is None) or (s == expect)
+    passed += ok
+    print(f"[{'PASS' if ok else 'FAIL'}] {s:8s} {r:.1f}  {a:9s} | {text[:60]}")
+
+print(f"\n{passed}/{len(TESTS)} passed")
+print("'Unknown' topic count:",
+      sum(1 for t, _ in TESTS if tag_aspects(t)[0] == "Unknown"), "(should be 0)")
