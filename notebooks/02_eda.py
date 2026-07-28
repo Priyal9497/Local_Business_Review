@@ -5,6 +5,8 @@ from wordcloud import WordCloud
 # Load dataset
 df = pd.read_csv("Data/processed/merged_restaurant_reviews.csv")
 
+
+
 # Basic information
 print("\n===== DATASET OVERVIEW =====")
 print("Shape:", df.shape)
@@ -45,8 +47,8 @@ plt.ylabel("Number of Reviews")
 
 plt.savefig("visualization/rating_distribution.png")
 plt.show()
-# Reviews per Business
 
+# Reviews per Business
 business_counts = df["Business_Name"].value_counts()
 
 plt.figure(figsize=(8,5))
@@ -60,8 +62,8 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 plt.savefig("visualization/reviews_per_business.png")
 plt.show()
-# Review Length Distribution
 
+# Review Length Distribution
 df["Review_Length"] = df["Review text"].astype(str).apply(len)
 
 plt.figure(figsize=(8,5))

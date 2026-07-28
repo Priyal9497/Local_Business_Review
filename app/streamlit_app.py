@@ -1,9 +1,3 @@
-# ============================================================
-# app/streamlit_app.py — REPLACE ENTIRE FILE
-# One model -> sentiment + rating can never disagree.
-# Topic from aspect rules -> never "Unknown".
-# Honest OOV (unigrams only) + margin-based uncertainty warning.
-# ============================================================
 import os
 import sys
 import joblib
@@ -13,12 +7,9 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 
-from text_utils import (CLEAN_CSV, MODELS_DIR, clean_review_text, oov_ratio,
-                        probs_to_outputs, rating_to_sentiment, tag_aspects,
-                        LexiconFeatures, POS_WORDS, NEG_WORDS, NEGATORS)  # noqa: F401
+from text_utils import (CLEAN_CSV, MODELS_DIR, clean_review_text, oov_ratio, probs_to_outputs, rating_to_sentiment, tag_aspects, LexiconFeatures, POS_WORDS, NEG_WORDS, NEGATORS)  
 
-st.set_page_config(page_title="Bengaluru Restaurant Review Analyzer", layout="wide")
-
+st.set_page_config(page_title="Restaurant Review Analyzer", layout="wide")
 
 @st.cache_data
 def load_data():
@@ -34,12 +25,11 @@ def load_model():
     b = joblib.load(os.path.join(MODELS_DIR, "review_model.pkl"))
     return b["pipeline"], np.asarray(b["classes"])
 
-
 df = load_data()
 pipeline, CLASSES = load_model()
 word_vec = pipeline.named_steps["feats"].transformer_list[0][1]
 
-st.title("Bengaluru Restaurant Review Analyzer")
+st.title("Restaurant Review Analyzer")
 st.caption(f"Built on {len(df)} cleaned reviews across {df['Business_Name'].nunique()} restaurants")
 
 business = st.selectbox("Select a restaurant", ["All"] + sorted(df["Business_Name"].unique()))
@@ -69,8 +59,7 @@ st.bar_chart(df.groupby("Business_Name")["Rating"].mean().sort_values())
 st.subheader("Word Cloud")
 text = " ".join(subset["Review text"].astype(str))
 if text.strip():
-    wc = WordCloud(width=800, height=350, background_color="white",
-                   stopwords=set(STOPWORDS)).generate(text)
+    wc = WordCloud(width=800, height=350, background_color="white", stopwords=set(STOPWORDS)).generate(text)
     fig, ax = plt.subplots()
     ax.imshow(wc, interpolation="bilinear")
     ax.axis("off")
@@ -78,8 +67,7 @@ if text.strip():
 
 # ------------------------------------------------------------
 st.subheader("Try it: predict sentiment, rating & topic from your own review")
-user_text = st.text_area("Enter a review",
-                         placeholder="e.g. The biryani was amazing but the service was slow")
+user_text = st.text_area("Enter a review", placeholder="e.g. The biryani was amazing but the service was slow")
 
 if st.button("Analyze") and user_text.strip():
     if len(user_text.split()) < 6:
@@ -105,10 +93,10 @@ if st.button("Analyze") and user_text.strip():
 
     ordered = sorted(sent_probs.values(), reverse=True)
     if oov > 0.6:
-        st.warning(f"⚠️ {oov:.0%} of the words here were not seen during training — "
+        st.warning(f"{oov:.0%} of the words here were not seen during training — "
                    "the prediction relies mostly on general polarity cues.")
     if ordered[0] - ordered[1] < 0.15:
-        st.warning("⚠️ Sentiment classes were close — treat this as uncertain.")
+        st.warning("Sentiment classes were close — treat this as uncertain.")
     toks = set(cleaned.split())
     has_pos = bool(toks & POS_WORDS)
     has_neg = bool(toks & NEG_WORDS) or bool(toks & NEGATORS)

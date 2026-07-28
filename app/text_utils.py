@@ -1,6 +1,3 @@
-# ============================================================
-# app/text_utils.py — single source of truth for ALL pipelines
-# ============================================================
 import os
 import re
 import numpy as np
@@ -9,7 +6,6 @@ from sklearn.base import BaseEstimator, TransformerMixin
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(APP_DIR)
 MODELS_DIR = os.path.join(PROJECT_ROOT, "models")
-
 
 def data_path(*parts):
     for folder in ("Data", "data"):
@@ -22,9 +18,6 @@ def data_path(*parts):
 CLEAN_CSV = data_path("processed", "cleaned_restaurant_reviews.csv")
 MERGED_CSV = data_path("processed", "merged_restaurant_reviews.csv")
 
-# ------------------------------------------------------------
-# Negation (matches BOTH "don't" and "dont" — your cleaning stripped apostrophes)
-# ------------------------------------------------------------
 NEGATORS = {
     "not", "no", "never", "none", "nothing", "nobody", "neither", "nor",
     "without", "hardly", "barely", "scarcely", "lack", "lacks", "lacking",
@@ -41,10 +34,8 @@ INTENSIFIERS = {"very", "really", "extremely", "so", "soo", "sooo", "too",
 NEG_WINDOW = 3
 _TOKEN_RE = re.compile(r"[a-z0-9_]+")
 
-
 def tokenize(text):
     return _TOKEN_RE.findall(str(text).lower())
-
 
 def negation_markers(tokens, window=NEG_WINDOW):
     out, scope = [], 0
@@ -60,20 +51,17 @@ def negation_markers(tokens, window=NEG_WINDOW):
             scope -= 1
     return out
 
-
 def clean_review_text(text):
-    """Keeps original tokens AND appends neg_ markers (old code destroyed the word)."""
     text = str(text).lower().strip()
-    text = re.sub(r"[^a-z0-9\s']", " ", text)      # SPACE, not "" — no more "burgera"
+    text = re.sub(r"[^a-z0-9\s']", " ", text)      
     text = re.sub(r"\s+", " ", text).strip()
     toks = tokenize(text)
     markers = negation_markers(toks)
     return (text + " " + " ".join(markers)).strip() if markers else text
 
-
-# ------------------------------------------------------------
+# --------------------------------------------------------
 # Sentiment lexicon — makes negation work on unseen words
-# ------------------------------------------------------------
+# --------------------------------------------------------
 POS_WORDS = {
     "good", "great", "amazing", "awesome", "excellent", "delicious", "tasty",
     "yummy", "fantastic", "wonderful", "lovely", "perfect", "best", "nice",
@@ -94,7 +82,6 @@ NEG_WORDS = {
     "unprofessional", "wrong", "missing", "small", "tiny", "hard", "dry",
     "spoiled", "sick", "problem", "issue", "complaint", "worse", "boring",
 }
-
 
 class LexiconFeatures(BaseEstimator, TransformerMixin):
     N_FEATURES = 7
@@ -154,10 +141,9 @@ def oov_ratio(text, word_vectorizer):
         return 1.0
     return sum(1 for t in toks if t not in vocab) / len(toks)
 
-
-# ------------------------------------------------------------
-# Aspect / topic tagging (replaces the broken LDA "Unknown" lookup)
-# ------------------------------------------------------------
+# ----------------------
+# Aspect / topic tagging 
+# ----------------------
 ASPECTS = {
     "Food": ["food", "taste", "tasty", "dish", "dishes", "biryani", "biriyani",
              "shawarma", "shwarma", "dosa", "idli", "vada", "tandoori", "chicken",
@@ -180,7 +166,6 @@ ASPECTS = {
               "reasonable", "bill", "money", "rate", "rates"],
 }
 
-
 def tag_aspects(text):
     toks = set(tokenize(text))
     scores = {}
@@ -195,7 +180,6 @@ def tag_aspects(text):
     ordered = sorted(scores, key=scores.get, reverse=True)
     return primary, ordered, scores[primary] / total
 
-
 def rating_to_sentiment(r):
     if r >= 3.5:
         return "positive"
@@ -203,9 +187,7 @@ def rating_to_sentiment(r):
         return "neutral"
     return "negative"
 
-
 def probs_to_outputs(proba, classes):
-    """One probability vector -> rating + sentiment. They can never disagree now."""
     classes = np.asarray(classes, dtype=float)
     proba = np.asarray(proba, dtype=float)
     rating = float(np.clip((proba * classes).sum(), 1.0, 5.0))
