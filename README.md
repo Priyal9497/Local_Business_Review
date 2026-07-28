@@ -328,6 +328,7 @@ Local_Business_Review/
 ├── Local_Business_Review_Report.pdf
 ├── README.md
 ├── requirements.txt
+├── LICENSE
 ```
 ---
 
@@ -526,7 +527,7 @@ http://localhost:8501
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
 
@@ -546,6 +547,6 @@ This project is licensed under the MIT License.
 
 For questions, suggestions, or collaboration:
 
-- **GitHub:** [https://github.com/Priyal9497/Local_Business_Review](https://github.com/Priyal9497/Local_Business_Review)
+- **GitHub:** [https://github.com/Priyal9497](https://github.com/Priyal9497)
 
 ---
