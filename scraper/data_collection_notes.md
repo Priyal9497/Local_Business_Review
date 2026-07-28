@@ -139,13 +139,15 @@ all downstream models:
 
 ---
 
-## 8. Reproducibility Checklist
+## 8. How to Recreate This Dataset (Step by Step)
 
-To recreate the corpus from scratch:
-
-- [ ] Open the public review page of each restaurant listed in §2.
-- [ ] For each rating level 1–5, record ~12 reviews (text + rating + name).
-- [ ] Apply the schema in §3.4 and export to `Data/raw/`.
-- [ ] Run the preprocessing notebook to produce the merged, cleaned CSV.
+- [ ] Go to the public review page of each restaurant listed in Section 2.
+- [ ] For every star rating (1★ to 5★), copy about 12 reviews. For each
+      review, write down three things: the review text, the star rating,
+      and the restaurant name.
+- [ ] Save all this data in the same column format shown in Section 3.4,
+      and keep the file inside the `Data/raw/` folder.
+- [ ] Run the preprocessing notebook. It will clean the data and create the
+      final merged CSV file.
 
 ---
