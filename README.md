@@ -3,6 +3,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-red.svg)](https://streamlit.io/)
+[![Live Demo](https://localbusinessreview2.streamlit.app/)](https://localbusinessreview2.streamlit.app/)
 
 Data Science / NLP project that analyzes manually collected restaurant reviews to predict star ratings, derive sentiment, tag aspects (Food/Service/Ambience/Price), and surface latent topics — delivered via an interactive Streamlit dashboard.
 
@@ -21,6 +22,9 @@ Data Science / NLP project that analyzes manually collected restaurant reviews t
 - [Ethics](#ethics)
 - [License](#license)
 - [Contact](#contact)
+
+## Live Demo
+https://localbusinessreview2.streamlit.app/
 
 ## Problem Statement
 
